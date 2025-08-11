@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timestamp Converter</title>
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+  <div id="app">
+    <h1>タイムスタンプ変換ツール</h1>
+
+    <section>
+      <h2>1. メモパターンの設定</h2>
+      <div id="memo-patterns-list"></div>
+      <div>
+        <input type="text" id="new-memo-pattern-input" placeholder="新しいメモの名称">
+        <button id="add-memo-pattern-button">パターンを追加</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. タイムスタンプ記録</h2>
+      <div class="memo-buttons-container" id="memo-buttons-container">
+      </div>
+      <textarea id="log-output" rows="10" readonly></textarea>
+      <button id="reset-button">ログをリセット</button>
+    </section>
+
+    <section>
+      <h2>3. YouTubeタイムスタンプへ変換</h2>
+      <div>
+        <label for="youtube-url">YouTubeライブのアーカイブURL:</label>
+        <input type="text" id="youtube-url" placeholder="https://www.youtube.com/watch?v=...">
+      </div>
+      <div>
+        <label for="api-key">YouTube Data API Key:</label>
+        <input type="password" id="api-key" placeholder="APIキーを入力">
+        <small>APIキーの取得方法は<a href="https://github.com/YOUR_USERNAME/YOUR_REPOSITORY/blob/main/README.md#youtube-data-api-key%E3%81%AE%E5%8F%96%E5%BE%97%E6%96%B9%E6%B3%95" target="_blank">こちら</a></small>
+      </div>
+      <button id="convert-button">変換実行</button>
+      <div id="conversion-result-container">
+        <h3>変換結果:</h3>
+        <textarea id="youtube-timestamps" rows="10" readonly></textarea>
+        <button id="copy-button">クリップボードにコピー</button>
+      </div>
+    </section>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
