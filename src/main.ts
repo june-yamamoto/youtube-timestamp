@@ -145,12 +145,12 @@ const formatSeconds = (totalSeconds: number): string => {
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = Math.floor(totalSeconds % 60);
+
+  const paddedHours = String(hours).padStart(2, '0');
   const paddedMinutes = String(minutes).padStart(2, '0');
   const paddedSeconds = String(seconds).padStart(2, '0');
-  if (hours > 0) {
-    return `${hours}:${paddedMinutes}:${paddedSeconds}`;
-  }
-  return `${minutes}:${paddedSeconds}`;
+
+  return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
 };
 
 const handleConvert = async () => {
@@ -166,10 +166,8 @@ const handleConvert = async () => {
     alert("YouTube Data APIキーを入力してください。");
     return;
   }
-  if (logs.length === 0) {
-    alert("記録されたタイムスタンプがありません。");
-    return;
-  }
+
+  // ログがなくても0秒の「配信開始」は表示するため、ここではチェックしない
 
   try {
     convertButton.textContent = '変換中...';
@@ -192,11 +190,16 @@ const handleConvert = async () => {
 
     const startTime = new Date(startTimeString).getTime();
 
+    // 変換処理
     const convertedLines = logs.map(log => {
       const elapsedTimeInSeconds = (log.timestamp - startTime) / 1000;
-      const formattedTime = elapsedTimeInSeconds > 0 ? formatSeconds(elapsedTimeInSeconds) : "00:00";
+      // 配信開始より前のログは 0秒 とする
+      const formattedTime = elapsedTimeInSeconds > 0 ? formatSeconds(elapsedTimeInSeconds) : formatSeconds(0);
       return `${formattedTime} ${log.memo}`;
     });
+
+    // 0秒に「配信開始」を追加
+    convertedLines.unshift(`${formatSeconds(0)} 配信開始`);
 
     youtubeTimestamps.value = convertedLines.join('\n');
 
@@ -207,6 +210,7 @@ const handleConvert = async () => {
     convertButton.disabled = false;
   }
 };
+
 
 // --- 初期化処理 ---
 
