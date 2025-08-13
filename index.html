@@ -11,11 +11,16 @@
     <h1>タイムスタンプ変換ツール</h1>
 
     <section>
-      <h2>1. メモパターンの設定</h2>
-      <div id="memo-patterns-list"></div>
-      <div>
-        <input type="text" id="new-memo-pattern-input" placeholder="新しいメモの名称">
-        <button id="add-memo-pattern-button">パターンを追加</button>
+      <div class="collapsible-header" id="memo-patterns-header">
+        <h2>1. メモパターンの設定</h2>
+        <span class="collapse-icon">&#9660;</span> <!-- Down arrow -->
+      </div>
+      <div class="collapsible-content" id="memo-patterns-content">
+        <div id="memo-patterns-list"></div>
+        <div>
+          <input type="text" id="new-memo-pattern-input" placeholder="新しいメモの名称">
+          <button id="add-memo-pattern-button">パターンを追加</button>
+        </div>
       </div>
     </section>
 
@@ -34,6 +39,10 @@
         <input type="text" id="youtube-url" placeholder="https://www.youtube.com/watch?v=...">
       </div>
       <div>
+        <label for="time-offset-input">タイムスタンプ調整 (秒):</label>
+        <input type="number" id="time-offset-input" min="-60" max="60" value="0">
+      </div>
+      <div>
         <label for="api-key">YouTube Data API Key:</label>
         <input type="password" id="api-key" placeholder="APIキーを入力">
         <small>APIキーの取得方法は<a href="https://github.com/june-yamamoto/youtube-timestamp/blob/main/README.md#youtube-data-api-key%E3%81%AE%E5%8F%96%E5%BE%97%E6%96%B9%E6%B3%95" target="_blank">こちら</a></small>
@@ -43,6 +52,21 @@
         <h3>変換結果:</h3>
         <textarea id="youtube-timestamps" rows="10" readonly></textarea>
         <button id="copy-button">クリップボードにコピー</button>
+      </div>
+    </section>
+
+    <section>
+      <div class="collapsible-header" id="live-stream-header">
+        <h2>4. チャンネルからライブ配信IDを取得</h2>
+        <span class="collapse-icon">&#9660;</span> <!-- Down arrow -->
+      </div>
+      <div class="collapsible-content" id="live-stream-content">
+        <div>
+          <label for="channel-id-input">YouTube Channel ID:</label>
+          <input type="text" id="channel-id-input" placeholder="UC...">
+        </div>
+        <button id="fetch-live-streams-button">ライブ配信を取得</button>
+        <textarea id="live-stream-ids-output" rows="5" readonly placeholder="ライブ配信中の動画IDが表示されます"></textarea>
       </div>
     </section>
   </div>

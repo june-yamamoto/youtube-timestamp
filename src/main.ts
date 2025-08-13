@@ -1,17 +1,30 @@
-// --- 定数 --- 
+// --- 定数 ---
 const DEFAULT_MEMO_PATTERNS: string[] = ["チャプター1", "面白かったところ", "重要なポイント", "質問"];
 const LOGS_STORAGE_KEY = 'timestampLogs';
 const API_KEY_STORAGE_KEY = 'youtubeApiKey';
 const MEMO_PATTERNS_STORAGE_KEY = 'memoPatterns';
+const TIME_OFFSET_STORAGE_KEY = 'timeOffset';
+const COLLAPSED_STATE_STORAGE_KEY_PREFIX = 'collapsedState_';
 
 // --- DOM要素の取得 ---
+const memoPatternsHeader = document.getElementById('memo-patterns-header')!;
+const memoPatternsContent = document.getElementById('memo-patterns-content')!;
 const memoPatternsList = document.getElementById('memo-patterns-list')!;
 const newMemoPatternInput = document.getElementById('new-memo-pattern-input') as HTMLInputElement;
 const addMemoPatternButton = document.getElementById('add-memo-pattern-button')!;
+
 const memoButtonsContainer = document.getElementById('memo-buttons-container')!;
 const logOutput = document.getElementById('log-output') as HTMLTextAreaElement;
 const resetButton = document.getElementById('reset-button')!;
+
+const liveStreamHeader = document.getElementById('live-stream-header')!;
+const liveStreamContent = document.getElementById('live-stream-content')!;
+const channelIdInput = document.getElementById('channel-id-input') as HTMLInputElement;
+const fetchLiveStreamsButton = document.getElementById('fetch-live-streams-button')!;
+const liveStreamIdsOutput = document.getElementById('live-stream-ids-output') as HTMLTextAreaElement;
+
 const youtubeUrlInput = document.getElementById('youtube-url') as HTMLInputElement;
+const timeOffsetInput = document.getElementById('time-offset-input') as HTMLInputElement;
 const apiKeyInput = document.getElementById('api-key') as HTMLInputElement;
 const convertButton = document.getElementById('convert-button')!;
 const youtubeTimestamps = document.getElementById('youtube-timestamps') as HTMLTextAreaElement;
@@ -128,7 +141,7 @@ const createMemoButtons = () => {
   });
 };
 
-// --- YouTubeタイムスタンプ変換機能 ---
+// --- YouTube関連機能 ---
 
 const getVideoIdFromUrl = (url: string): string | null => {
   // Supports:
@@ -153,10 +166,51 @@ const formatSeconds = (totalSeconds: number): string => {
   return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
 };
 
+/**
+ * チャンネルIDからライブ配信中の動画IDを取得する
+ */
+const fetchLiveStreams = async () => {
+  const channelId = channelIdInput.value.trim();
+  const apiKey = apiKeyInput.value;
+
+  if (!channelId) {
+    alert("YouTube Channel IDを入力してください。");
+    return;
+  }
+  if (!apiKey) {
+    alert("YouTube Data APIキーを入力してください。");
+    return;
+  }
+
+  liveStreamIdsOutput.value = '取得中...';
+  try {
+    const apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&eventType=live&type=video&key=${apiKey}`;
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      throw new Error(data.error?.message || 'ライブ配信情報の取得に失敗しました。');
+    }
+
+    if (data.items.length === 0) {
+      liveStreamIdsOutput.value = '現在ライブ配信中の動画はありません。';
+    } else {
+      const videoIds = data.items.map((item: any) => item.id.videoId).join('\n');
+      liveStreamIdsOutput.value = videoIds;
+    }
+
+  } catch (error) {
+    liveStreamIdsOutput.value = `エラーが発生しました: ${error instanceof Error ? error.message : String(error)}`;
+  } finally {
+    // Nothing to do here
+  }
+};
+
 const handleConvert = async () => {
   const videoUrl = youtubeUrlInput.value;
   const apiKey = apiKeyInput.value;
   const videoId = getVideoIdFromUrl(videoUrl);
+  const timeOffsetSeconds = parseInt(timeOffsetInput.value || '0', 10);
 
   if (!videoId) {
     alert("有効なYouTubeのURLを入力してください。");
@@ -166,8 +220,6 @@ const handleConvert = async () => {
     alert("YouTube Data APIキーを入力してください。");
     return;
   }
-
-  // ログがなくても0秒の「配信開始」は表示するため、ここではチェックしない
 
   try {
     convertButton.textContent = '変換中...';
@@ -185,14 +237,17 @@ const handleConvert = async () => {
     const startTimeString = liveDetails?.actualStartTime;
 
     if (!startTimeString) {
-      throw new Error('ライブ配信の開始時刻が取得できませんでした。アーカイブ動画ではない可能性があります。');
+      throw new Error(`ライブ配信の開始時刻が取得できませんでした。アーカイブ動画ではない可能性があります。
+(ライブ配信終了直後は情報が反映されていない場合があります。しばらく待ってからお試しください。)`);
     }
 
     const startTime = new Date(startTimeString).getTime();
 
     // 変換処理
     const convertedLines = logs.map(log => {
-      const elapsedTimeInSeconds = (log.timestamp - startTime) / 1000;
+      // タイムスタンプにオフセットを適用
+      const adjustedTimestamp = log.timestamp + (timeOffsetSeconds * 1000);
+      const elapsedTimeInSeconds = (adjustedTimestamp - startTime) / 1000;
       // 配信開始より前のログは 0秒 とする
       const formattedTime = elapsedTimeInSeconds > 0 ? formatSeconds(elapsedTimeInSeconds) : formatSeconds(0);
       return `${formattedTime} ${log.memo}`;
@@ -211,6 +266,21 @@ const handleConvert = async () => {
   }
 };
 
+// --- 折りたたみ機能 ---
+
+const toggleCollapsible = (header: HTMLElement, content: HTMLElement, storageKey: string) => {
+  const isCollapsed = content.classList.toggle('collapsed');
+  header.classList.toggle('collapsed', isCollapsed);
+  localStorage.setItem(storageKey, isCollapsed.toString());
+};
+
+const loadCollapsibleState = (header: HTMLElement, content: HTMLElement, storageKey: string) => {
+  const savedState = localStorage.getItem(storageKey);
+  if (savedState === 'true') {
+    content.classList.add('collapsed');
+    header.classList.add('collapsed');
+  }
+};
 
 // --- 初期化処理 ---
 
@@ -234,6 +304,11 @@ const initialize = () => {
     memoPatterns = [...DEFAULT_MEMO_PATTERNS]; // 保存されたものがなければデフォルト値を使う
   }
 
+  const savedTimeOffset = localStorage.getItem(TIME_OFFSET_STORAGE_KEY);
+  if (savedTimeOffset !== null) {
+    timeOffsetInput.value = savedTimeOffset;
+  }
+
   // 2. UIを初期描画
   renderMemoPatterns();
   createMemoButtons();
@@ -248,6 +323,7 @@ const initialize = () => {
     }
   });
 
+  fetchLiveStreamsButton.addEventListener('click', fetchLiveStreams);
   convertButton.addEventListener('click', handleConvert);
 
   copyButton.addEventListener('click', () => {
@@ -260,6 +336,17 @@ const initialize = () => {
   apiKeyInput.addEventListener('change', () => {
     localStorage.setItem(API_KEY_STORAGE_KEY, apiKeyInput.value);
   });
+
+  timeOffsetInput.addEventListener('change', () => {
+    localStorage.setItem(TIME_OFFSET_STORAGE_KEY, timeOffsetInput.value);
+  });
+
+  //折りたたみ機能のイベントリスナーと状態復元
+  memoPatternsHeader.addEventListener('click', () => toggleCollapsible(memoPatternsHeader, memoPatternsContent, COLLAPSED_STATE_STORAGE_KEY_PREFIX + 'memoPatterns'));
+  loadCollapsibleState(memoPatternsHeader, memoPatternsContent, COLLAPSED_STATE_STORAGE_KEY_PREFIX + 'memoPatterns');
+
+  liveStreamHeader.addEventListener('click', () => toggleCollapsible(liveStreamHeader, liveStreamContent, COLLAPSED_STATE_STORAGE_KEY_PREFIX + 'liveStream'));
+  loadCollapsibleState(liveStreamHeader, liveStreamContent, COLLAPSED_STATE_STORAGE_KEY_PREFIX + 'liveStream');
 };
 
 // アプリケーション実行

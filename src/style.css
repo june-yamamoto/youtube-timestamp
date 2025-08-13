@@ -155,3 +155,39 @@ small a {
 small a:hover {
   text-decoration: underline;
 }
+
+/* Collapsible Sections */
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.collapsible-header h2 {
+  margin: 0;
+}
+
+.collapse-icon {
+  font-size: 1.5rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+.collapsible-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  max-height: 500px; /* Arbitrary large value for expanded state */
+  opacity: 1;
+}
+
+.collapsible-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+.collapsible-header.collapsed .collapse-icon {
+  transform: rotate(-90deg); /* Rotate arrow for collapsed state */
+}
