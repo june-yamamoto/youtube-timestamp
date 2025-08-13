@@ -4,19 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Timestamp Converter</title>
-  <script type="module" crossorigin src="/youtube-timestamp/assets/index-FDStkpOd.js"></script>
-  <link rel="stylesheet" crossorigin href="/youtube-timestamp/assets/index-B2oPO1PX.css">
+  <script type="module" crossorigin src="/youtube-timestamp/assets/index-BcWJpPaF.js"></script>
+  <link rel="stylesheet" crossorigin href="/youtube-timestamp/assets/index-C7Wbrozr.css">
 </head>
 <body>
   <div id="app">
     <h1>タイムスタンプ変換ツール</h1>
 
     <section>
-      <h2>1. メモパターンの設定</h2>
-      <div id="memo-patterns-list"></div>
-      <div>
-        <input type="text" id="new-memo-pattern-input" placeholder="新しいメモの名称">
-        <button id="add-memo-pattern-button">パターンを追加</button>
+      <div class="collapsible-header" id="memo-patterns-header">
+        <h2>1. メモパターンの設定</h2>
+        <span class="collapse-icon">&#9660;</span> <!-- Down arrow -->
+      </div>
+      <div class="collapsible-content" id="memo-patterns-content">
+        <div id="memo-patterns-list"></div>
+        <div>
+          <input type="text" id="new-memo-pattern-input" placeholder="新しいメモの名称">
+          <button id="add-memo-pattern-button">パターンを追加</button>
+        </div>
       </div>
     </section>
 
@@ -29,17 +34,7 @@
     </section>
 
     <section>
-      <h2>3. チャンネルからライブ配信IDを取得</h2>
-      <div>
-        <label for="channel-id-input">YouTube Channel ID:</label>
-        <input type="text" id="channel-id-input" placeholder="UC...">
-      </div>
-      <button id="fetch-live-streams-button">ライブ配信を取得</button>
-      <textarea id="live-stream-ids-output" rows="5" readonly placeholder="ライブ配信中の動画IDが表示されます"></textarea>
-    </section>
-
-    <section>
-      <h2>4. YouTubeタイムスタンプへ変換</h2>
+      <h2>3. YouTubeタイムスタンプへ変換</h2>
       <div>
         <label for="youtube-url">YouTubeライブのアーカイブURL:</label>
         <input type="text" id="youtube-url" placeholder="https://www.youtube.com/watch?v=...">
@@ -58,6 +53,21 @@
         <h3>変換結果:</h3>
         <textarea id="youtube-timestamps" rows="10" readonly></textarea>
         <button id="copy-button">クリップボードにコピー</button>
+      </div>
+    </section>
+
+    <section>
+      <div class="collapsible-header" id="live-stream-header">
+        <h2>4. チャンネルからライブ配信IDを取得</h2>
+        <span class="collapse-icon">&#9660;</span> <!-- Down arrow -->
+      </div>
+      <div class="collapsible-content" id="live-stream-content">
+        <div>
+          <label for="channel-id-input">YouTube Channel ID:</label>
+          <input type="text" id="channel-id-input" placeholder="UC...">
+        </div>
+        <button id="fetch-live-streams-button">ライブ配信を取得</button>
+        <textarea id="live-stream-ids-output" rows="5" readonly placeholder="ライブ配信中の動画IDが表示されます"></textarea>
       </div>
     </section>
   </div>
