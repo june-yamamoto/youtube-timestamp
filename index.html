@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Timestamp Converter</title>
-  <script type="module" crossorigin src="/youtube-timestamp/assets/index-ScFSRuyQ.js"></script>
+  <script type="module" crossorigin src="/youtube-timestamp/assets/index-FDStkpOd.js"></script>
   <link rel="stylesheet" crossorigin href="/youtube-timestamp/assets/index-B2oPO1PX.css">
 </head>
 <body>
@@ -29,10 +29,24 @@
     </section>
 
     <section>
-      <h2>3. YouTubeタイムスタンプへ変換</h2>
+      <h2>3. チャンネルからライブ配信IDを取得</h2>
+      <div>
+        <label for="channel-id-input">YouTube Channel ID:</label>
+        <input type="text" id="channel-id-input" placeholder="UC...">
+      </div>
+      <button id="fetch-live-streams-button">ライブ配信を取得</button>
+      <textarea id="live-stream-ids-output" rows="5" readonly placeholder="ライブ配信中の動画IDが表示されます"></textarea>
+    </section>
+
+    <section>
+      <h2>4. YouTubeタイムスタンプへ変換</h2>
       <div>
         <label for="youtube-url">YouTubeライブのアーカイブURL:</label>
         <input type="text" id="youtube-url" placeholder="https://www.youtube.com/watch?v=...">
+      </div>
+      <div>
+        <label for="time-offset-input">タイムスタンプ調整 (秒):</label>
+        <input type="number" id="time-offset-input" min="-60" max="60" value="0">
       </div>
       <div>
         <label for="api-key">YouTube Data API Key:</label>
